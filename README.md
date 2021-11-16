@@ -181,6 +181,14 @@ $ npm start
 
 ### 2) 상세 내용
 
+#### Pair Programming (짝 코딩)
+
+지난 프로젝트들에서도 2명 혹은 3명씩 짝을 지어서 pair programming을 진행했었습니다.
+
+이번 과제에서는 batch task가 핵심이었기 때문에, 첫 날에 batch task의 틀을 짤 때 6명이 함께 pair programming을 진행했습니다.
+
+![image](https://user-images.githubusercontent.com/43634786/142021494-9a783af8-d5d0-4462-b63b-4e415c502f32.png)
+
 #### [설계 논의 사항](https://github.com/preOnboarding-Team13/Assignment-5-humanscape/wiki/설계-회의-내용)
 #### [오픈 API 조회 방식, For Loop Vs Promise.all](https://github.com/preOnboarding-Team13/Assignment-5-humanscape/wiki/오픈-API-조회-방식,-For-Loop-Vs-Promise.all)
 
