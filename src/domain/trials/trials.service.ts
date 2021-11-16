@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import * as _ from "lodash";
 import { TrialsRepository } from "./trials.repository";
@@ -13,6 +13,7 @@ export class TrialsService {
 		private readonly updatedTrialsRepository: UpdatedTrialsRepository,
 		private readonly updatedTrialBundlesRepository: UpdatedTrialBundlesRepository
 	) {}
+	private readonly logger = new Logger(TrialsService.name);
 
 	private readonly CLINICAL_URL = process.env.CLINICAL_URL;
 	private trialsConfig =
@@ -29,9 +30,9 @@ export class TrialsService {
 		key: "items"
 	}
 
-	@Cron(CronExpression.EVERY_DAY_AT_5AM)
+	@Cron(CronExpression.EVERY_10_MINUTES)
 	async handleCron() {
-		console.log("start");
+		this.logger.log("started...");
 
 		const trials = await callGetTrialsAPI(this.CLINICAL_URL, this.trialsConfig.key, this.trialsConfig.config);
 	
@@ -44,12 +45,10 @@ export class TrialsService {
 		}
 
 		const created = await this.trialsRepository.createOne(JSON.stringify(trialsObject));
-		// 결과 확인용
-		console.log(created);
+		this.logger.log(created);
 		
 		const updated = await this.makeUpdatedTrials(latestData, trialsObject);
-		// 결과 확인용
-		console.log(updated);
+		this.logger.log(updated);
 		
 		updated && await this.makeUpdatedTrialBundle(7);
 	}
@@ -89,8 +88,7 @@ export class TrialsService {
 			JSON.stringify(updatedBundle)
 		);
 
-		// 결과 확인용
-		console.log(results);
+		this.logger.log(results);
 	}
 	
 }
