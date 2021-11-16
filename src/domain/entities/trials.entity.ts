@@ -1,18 +1,18 @@
 import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+	Column,
+	CreateDateColumn,
+	Entity,
+	PrimaryGeneratedColumn
+} from "typeorm";
 
-@Entity('trials')
+@Entity("trials")
 export class Trials {
-  @PrimaryGeneratedColumn('increment')
-  dataId!: number;
+	@PrimaryGeneratedColumn("increment")
+	dataId!: number;
 
-  @Column('clob')
-  data!: string;
+	@Column("clob")
+	data!: string;
 
-  @CreateDateColumn()
-  createdAt!: Date;
+	@CreateDateColumn()
+	createdAt!: Date;
 }

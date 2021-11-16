@@ -1,28 +1,29 @@
-import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { ScheduleModule } from '@nestjs/schedule';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Trials } from './domain/entities/trials.entity';
-import { UpdateTrials } from './domain/entities/updatedTrials.entity';
-import { SearchModule } from './domain/search/search.module';
-import { ClinicalModule } from './global/schedule/clinical.module';
+import { Module } from "@nestjs/common";
+import { ConfigModule } from "@nestjs/config";
+import { ScheduleModule } from "@nestjs/schedule";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { Trials } from "./domain/entities/trials.entity";
+import { UpdatedTrialBundles } from "./domain/entities/updatedTrialBundles.entity";
+import { UpdatedTrials } from "./domain/entities/updatedTrials.entity";
+import { SearchModule } from "./domain/search/search.module";
+import { ClinicalModule } from "./global/schedule/clinical.module";
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
-    ScheduleModule.forRoot(),
-    TypeOrmModule.forRoot({
-      type: 'sqlite',
-      database: 'test.db', //':memory:',
-      entities: [Trials, UpdateTrials],
-      synchronize: true,
-      keepConnectionAlive: true,
-    }),
-    ClinicalModule,
-    SearchModule
-  ],
+	imports: [
+		ConfigModule.forRoot({
+			isGlobal: true
+		}),
+		ScheduleModule.forRoot(),
+		TypeOrmModule.forRoot({
+			type: "sqlite",
+			database: "test.db", //':memory:',
+			entities: [Trials, UpdatedTrials, UpdatedTrialBundles],
+			synchronize: true,
+			keepConnectionAlive: true
+		}),
+		ClinicalModule,
+		SearchModule
+	]
 })
 export class AppModule {}
 // 1. cron & batch Test (ex, 5초마다 작업이 되는지)
