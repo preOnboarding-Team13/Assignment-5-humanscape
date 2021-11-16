@@ -6,6 +6,7 @@ import * as _ from "lodash";
 import { lastValueFrom } from "rxjs";
 import { UpdatedTrialsRepository } from "./updatedTrials.repository";
 import { UpdatedTrialBundlesRepository } from "./updatedTrialBundles.repository";
+import { AxiosRequestConfig } from "axios";
 
 @Injectable()
 export class ClinicalBatchService {
@@ -17,71 +18,72 @@ export class ClinicalBatchService {
 	) {}
 
 	private readonly CLINICAL_URL = process.env.CLINICAL_URL;
-	config = {
-		headers: { "Content-Type": "application/json" },
-		params: {
-			serviceKey: process.env.SERVICE_KEY,
-			resultType: "JSON",
-			numOfRows: 4,
-			pageNo: 1
-		}
-	};
+	private trialsConfig =
+	{
+		config: {
+			headers: { "Content-Type": "application/json" },
+			params: {
+				serviceKey: process.env.SERVICE_KEY,
+				resultType: "JSON",
+				numOfRows: 4,
+				pageNo: 1
+			},
+		},
+		key: "asd"
+	}
 
 	// @Cron(CronExpression.EVERY_30_MINUTES)
 	@Cron("*/20 * * * * *")
 	async handleCron() {
 		console.log("start");
+
+		const trials = await this.callGetTrialsAPI(this.CLINICAL_URL, this.trialsConfig.key, this.trialsConfig.config);
+	
+		const keyField = "trials_id";
+		const trialsObject = this.arrayToObject(trials, keyField);
+		
+		const latestData = await this.trialsRepository.findLatest();
+		if (latestData.length > 0 && _.isEqual(JSON.parse(latestData[0].data), trialsObject)) {
+			return;
+		}
+
+		await this.trialsRepository.createOne(JSON.stringify(trialsObject));
+		await this.makeUpdatedTrials(latestData, trialsObject);
+		await this.makeUpdatedTrialBundle(7);
+	}
+
+	async callGetTrialsAPI(url: string, dataKey, config: AxiosRequestConfig): Promise<[any]> {
 		let information = await lastValueFrom(
-			this.httpService.get(this.CLINICAL_URL, this.config)
+			this.httpService.get(url, config)
 		);
 
-		let trials = information.data.items;
-		const totalCount = information.data.totalCount;
-		const pageSize = information.data.numOfRows;
+		// 최초 요청
+		let allData = information.data[dataKey];
+		
+		const totalCount = information.data[config.params.totalCount];
+		const pageSize = information.data[config.params.numOfRows];
 		const maxPage = Math.ceil(totalCount / pageSize);
 
 		// 처음 1페이지로 보내고 totalCount/50 +1번 페이지까지 보내
 		for (let pageNo = 2; pageNo <= maxPage; pageNo++) {
-			console.log(pageNo);
-			this.config.params.pageNo = pageNo;
+			config.params.pageNo = pageNo;
 			information = await lastValueFrom(
-				this.httpService.get(this.CLINICAL_URL, this.config)
+				this.httpService.get(url, config)
 			);
-			const items = information.data.items;
-			console.log(items.length);
-			trials = [...trials, ...items];
+			const items = information.data[dataKey];
+			allData = [...allData, ...items];
 		}
+		return allData;
+	}
 
-		const created = _.reduce(
-			trials,
-			(created, trial) => {
-				created[trial.trial_id] = trial;
-				return created;
-			},
-			{}
-		);
-
-		const latestData = await this.trialsRepository.findLatest();
-		if (
-			latestData.length > 0 &&
-			_.isEqual(JSON.parse(latestData[0].data), created)
-		) {
-			return;
-		}
-
-		// insert
-		const rrr = await this.trialsRepository.createOne(
-			JSON.stringify(created)
-		);
-
-		let updated;
+	async makeUpdatedTrials(latestData, trialsObject) {
+		let updated = {};
 		if (latestData.length === 0) {
-			updated = created;
+			updated = trialsObject;
 		} else {
 			const before = JSON.parse(latestData[0].data);
-			const now = created;
+			const now = trialsObject;
 
-			updated = {};
 			for (const key in now) {
 				// 새로 추가
 				if (before[key] === undefined) {
@@ -95,11 +97,14 @@ export class ClinicalBatchService {
 				}
 			}
 		}
-
-		await this.updatedTrialsRepository.createOne(JSON.stringify(updated));
-
+		const result = await this.updatedTrialsRepository.createOne(
+			JSON.stringify(updated)
+		);
+		return result;
+	}
+	async makeUpdatedTrialBundle(days: number) {
 		// updatedBundles에 insert
-		const results = await this.updatedTrialsRepository.findDataFor(7);
+		const results = await this.updatedTrialsRepository.findDataFor(days);
 		const updatedBundle = _.reduce(
 			results,
 			(prev, cur) => {
@@ -113,5 +118,12 @@ export class ClinicalBatchService {
 			JSON.stringify(updatedBundle)
 		);
 		console.log(results);
+	}
+
+	async arrayToObject(arrayItems, keyField: string) {
+		return _.reduce(arrayItems, (object, item) => {
+			object[item[keyField]] = item;
+			return object;
+		}, {});
 	}
 }
