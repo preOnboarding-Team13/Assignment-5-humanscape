@@ -1,15 +1,16 @@
 import { HttpService } from "@nestjs/axios";
 import { Injectable } from "@nestjs/common";
 import { Cron, CronExpression } from "@nestjs/schedule";
-import { TrialsRepository } from "./trials.repository";
 import * as _ from "lodash";
 import { lastValueFrom } from "rxjs";
+import { AxiosRequestConfig } from "axios";
+import { TrialsRepository } from "./trials.repository";
 import { UpdatedTrialsRepository } from "./updatedTrials.repository";
 import { UpdatedTrialBundlesRepository } from "./updatedTrialBundles.repository";
-import { AxiosRequestConfig } from "axios";
+import { arrayToObject, callGetTrialsAPI } from "src/utils/batchFunctions";
 
 @Injectable()
-export class ClinicalBatchService {
+export class TrialsService {
 	constructor(
 		private readonly httpService: HttpService,
 		private readonly trialsRepository: TrialsRepository,
@@ -29,7 +30,7 @@ export class ClinicalBatchService {
 				pageNo: 1
 			},
 		},
-		key: "asd"
+		key: "items"
 	}
 
 	// @Cron(CronExpression.EVERY_30_MINUTES)
@@ -37,10 +38,10 @@ export class ClinicalBatchService {
 	async handleCron() {
 		console.log("start");
 
-		const trials = await this.callGetTrialsAPI(this.CLINICAL_URL, this.trialsConfig.key, this.trialsConfig.config);
+		const trials = await callGetTrialsAPI(this.CLINICAL_URL, this.trialsConfig.key, this.trialsConfig.config);
 	
 		const keyField = "trials_id";
-		const trialsObject = this.arrayToObject(trials, keyField);
+		const trialsObject = arrayToObject(trials, keyField);
 		
 		const latestData = await this.trialsRepository.findLatest();
 		if (latestData.length > 0 && _.isEqual(JSON.parse(latestData[0].data), trialsObject)) {
@@ -50,30 +51,6 @@ export class ClinicalBatchService {
 		await this.trialsRepository.createOne(JSON.stringify(trialsObject));
 		await this.makeUpdatedTrials(latestData, trialsObject);
 		await this.makeUpdatedTrialBundle(7);
-	}
-
-	async callGetTrialsAPI(url: string, dataKey, config: AxiosRequestConfig): Promise<[any]> {
-		let information = await lastValueFrom(
-			this.httpService.get(url, config)
-		);
-
-		// 최초 요청
-		let allData = information.data[dataKey];
-		
-		const totalCount = information.data[config.params.totalCount];
-		const pageSize = information.data[config.params.numOfRows];
-		const maxPage = Math.ceil(totalCount / pageSize);
-
-		// 처음 1페이지로 보내고 totalCount/50 +1번 페이지까지 보내
-		for (let pageNo = 2; pageNo <= maxPage; pageNo++) {
-			config.params.pageNo = pageNo;
-			information = await lastValueFrom(
-				this.httpService.get(url, config)
-			);
-			const items = information.data[dataKey];
-			allData = [...allData, ...items];
-		}
-		return allData;
 	}
 
 	async makeUpdatedTrials(latestData, trialsObject) {
@@ -120,10 +97,5 @@ export class ClinicalBatchService {
 		console.log(results);
 	}
 
-	async arrayToObject(arrayItems, keyField: string) {
-		return _.reduce(arrayItems, (object, item) => {
-			object[item[keyField]] = item;
-			return object;
-		}, {});
-	}
+	
 }

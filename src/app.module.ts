@@ -6,7 +6,7 @@ import { Trials } from "./domain/entities/trials.entity";
 import { UpdatedTrialBundles } from "./domain/entities/updatedTrialBundles.entity";
 import { UpdatedTrials } from "./domain/entities/updatedTrials.entity";
 import { SearchModule } from "./domain/search/search.module";
-import { ClinicalModule } from "./global/schedule/clinical.module";
+import { TrialsModule } from "./domain/trials/trials.module";
 
 @Module({
 	imports: [
@@ -21,7 +21,7 @@ import { ClinicalModule } from "./global/schedule/clinical.module";
 			synchronize: true,
 			keepConnectionAlive: true
 		}),
-		ClinicalModule,
+		TrialsModule,
 		SearchModule
 	]
 })
