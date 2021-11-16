@@ -18,9 +18,10 @@ import { ClinicalModule } from "./global/schedule/clinical.module";
 			database: "test.db", //':memory:',
 			entities: [Trials, UpdateTrials],
 			synchronize: true,
-			keepConnectionAlive: true
+			keepConnectionAlive: true,
+			logging: true
 		}),
-		ClinicalModule,
+		// ClinicalModule,
 		SearchModule
 	]
 })
