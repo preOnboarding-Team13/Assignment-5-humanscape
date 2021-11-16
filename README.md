@@ -195,6 +195,7 @@ $ npm start
 #### [오픈 API 조회 방식, For Loop VS Promise.all](https://github.com/preOnboarding-Team13/Assignment-5-humanscape/wiki/오픈-API-조회-방식,-For-Loop-Vs-Promise.all)
 #### [Functional Test 결과](https://github.com/preOnboarding-Team13/Assignment-5-humanscape/wiki/Functional-Test-결과)
 
+#### [TypeOrm 페이지 향상기(2)](https://github.com/preOnboarding-Team13/Assignment-5-humanscape/wiki/TypeOrm-%ED%8E%98%EC%9D%B4%EC%A7%80-%EC%84%B1%EB%8A%A5-%ED%96%A5%EC%83%81-%EB%8F%84%EC%A0%84%EA%B8%B0(2))
 <br>
 
 ## 🐾 API
