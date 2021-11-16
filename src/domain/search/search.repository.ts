@@ -1,11 +1,11 @@
 import { EntityRepository, Repository } from "typeorm";
-import { Trials } from "../entities/trials.entity";
+import { UpdateTrials } from "../entities/updatedTrials.entity";
 
-@EntityRepository(Trials)
-export class SearchRepository extends Repository<Trials> {
+@EntityRepository(UpdateTrials)
+export class SearchRepository extends Repository<UpdateTrials> {
 	async findTrials(trial_id: string) {
 		const result = await this.query(`select value
-from trials, json_each(data)
+from updateTrials, json_each(data)
 where json_extract(json_each.value, '$.trial_id') LIKE '%${trial_id}%'`);
 
 		return JSON.parse(result[0].value);

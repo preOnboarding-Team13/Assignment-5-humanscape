@@ -13,7 +13,10 @@ export class SearchController {
 
 	// 최근 일주일내에 변동사항이 있던 임상정보 읽기
 	@Get()
-	async getTrialsList(@Query("cursor") cursor: string) {
-		return await this.searchService.getTrialsList(cursor);
+	async getTrialsList(
+		@Query("cursor") cursor: string,
+		@Query("pageSize") pageSize: number
+	) {
+		return await this.searchService.getTrialsList(cursor, pageSize);
 	}
 }
