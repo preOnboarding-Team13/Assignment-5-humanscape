@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { Trials } from "../entities/trials.entity";
-import { UpdateBundles } from "../entities/updateBundles.entity";
+import { UpdatedTrialBundles } from "../entities/updateBundles.entity";
 import { UpdateTrials } from "../entities/updatedTrials.entity";
 import { SearchController } from "./search.controller";
 import { SearchRepository } from "./search.repository";
@@ -13,7 +13,7 @@ import { SearchPageRepository } from "./searchPage.repository";
 		TypeOrmModule.forFeature([
 			Trials,
 			UpdateTrials,
-			UpdateBundles,
+			UpdatedTrialBundles,
 			SearchRepository,
 			SearchPageRepository
 		])

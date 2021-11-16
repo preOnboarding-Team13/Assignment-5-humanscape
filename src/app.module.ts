@@ -3,7 +3,7 @@ import { ConfigModule } from "@nestjs/config";
 import { ScheduleModule } from "@nestjs/schedule";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { Trials } from "./domain/entities/trials.entity";
-import { UpdateBundles } from "./domain/entities/updateBundles.entity";
+import { UpdatedTrialBundles } from "./domain/entities/updateBundles.entity";
 import { UpdateTrials } from "./domain/entities/updatedTrials.entity";
 import { SearchModule } from "./domain/search/search.module";
 import { ClinicalModule } from "./global/schedule/clinical.module";
@@ -17,7 +17,7 @@ import { ClinicalModule } from "./global/schedule/clinical.module";
 		TypeOrmModule.forRoot({
 			type: "sqlite",
 			database: "test.db", //':memory:',
-			entities: [Trials, UpdateTrials, UpdateBundles],
+			entities: [Trials, UpdateTrials, UpdatedTrialBundles],
 			synchronize: true,
 			keepConnectionAlive: true,
 			logging: true
