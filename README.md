@@ -169,13 +169,15 @@ $ npm start
 
   ✅ 업데이트된 임상정보 리스트 API
 
+  ✅ 임상정보를 수집하는 batch task
+
 - 테스트 코드
 
   ✅ Unit Test
 
 - 추가 고려 사항
 
-  ⚡ 임상정보 검색 API 
+  ✖️ 임상정보 검색 API 
 
 
 
@@ -191,12 +193,13 @@ $ npm start
 
 #### [설계 논의 사항](https://github.com/preOnboarding-Team13/Assignment-5-humanscape/wiki/설계-회의-내용)
 #### [오픈 API 조회 방식, For Loop Vs Promise.all](https://github.com/preOnboarding-Team13/Assignment-5-humanscape/wiki/오픈-API-조회-방식,-For-Loop-Vs-Promise.all)
+#### [Functional Test 결과](https://github.com/preOnboarding-Team13/Assignment-5-humanscape/wiki/Functional-Test-결과)
 
 <br>
 
 ## 🐾 API
 
-[Postman 주소-링크](https://documenter.getpostman.com/view/15410333/UVC8Ckor)
+[Postman 주소-링크](https://documenter.getpostman.com/view/12074893/UVCB9PXL)
 
 <br>
 
@@ -204,8 +207,9 @@ $ npm start
 
 #### 1. 위의 Postman 주소 링크를 클릭하여 Postman으로 들어갑니다.
 
-#### 2. 
+#### 2. Search Information, Search Updated Information API 를 이용하여 임상 정보 확인과 리스트 확인을 할 수 있습니다.
 
+![image](https://user-images.githubusercontent.com/60311404/142031590-fd8bc1bc-d36e-43d2-9591-2de4dc694469.png)
 
 
 <br>
