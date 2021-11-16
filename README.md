@@ -12,12 +12,12 @@
 
 | 이름                                     | 담당 기능                 |
 | ---------------------------------------- | ------------------------- |
-| [김바다](https://github.com/sally0226)   |                           |
-| [김효민](https://github.com/luckyhyom)   |                           |
-| [원동균](https://github.com/WonDongGyun) |                           |
-| [이나영](https://github.com/bokiri409)   | Search API TEST Code 작성 |
+| [김바다](https://github.com/sally0226)   | 배치(TrialService) 구현 및 테스트 코드 작성 |
+| [김효민](https://github.com/luckyhyom)   | 배치(TrialService) 구현 및 테스트 코드 작성 |
+| [원동균](https://github.com/WonDongGyun) | Search api pagination 구현 |
+| [이나영](https://github.com/bokiri409)   | Search API Test Code 작성 |
 | [장희진](https://github.com/heejin99)    | Search API Test Code 작성 |
-| [조재복](https://github.com/ildang100)   |                           |
+| [조재복](https://github.com/ildang100)   | DB 모델링 |
 
 <br>
 
@@ -92,13 +92,6 @@ $ npm start
 - **Test 구현시 가산점이 있습니다.**
 
 
-
-## 🗺️ API 설계
-
-[API 설계 노션 링크]()
-
-
-
 ## 🧬 DB 모델링
 
 ![Untitled (2)](https://user-images.githubusercontent.com/60311404/141983542-3da3d782-2730-4f52-8bea-3c40a438eb6c.png)
@@ -123,14 +116,21 @@ $ npm start
 │  │  ├── 📄 trials.entity.ts
 │  │  ├── 📄 updatedBundles.entity.ts
 │  │  └── 📄 updatedTrials.dto.ts
-│  │  ├── 📂 search
-│  │  │  ├── 📄 search.controller.spec.ts
-│  │  │  ├── 📄 search.controller.ts
-│  │  │  ├── 📄 search.module.ts
-│  │  │  ├── 📄 search.repository.ts
-│  │  │  ├── 📄 searchPage.repository.ts
-│  │  │  ├── 📄 search.service.spec.ts
-│  │  │  └── 📄 search.service.ts
+│  ├── 📂 search
+│  │  ├── 📄 search.controller.spec.ts
+│  │  ├── 📄 search.controller.ts
+│  │  ├── 📄 search.module.ts
+│  │  ├── 📄 search.repository.ts
+│  │  ├── 📄 searchPage.repository.ts
+│  │  ├── 📄 search.service.spec.ts
+│  │  └── 📄 search.service.ts
+│  ├── 📂 trials
+│  │  ├── 📄 trials.module.ts
+│  │  ├── 📄 trials.repository.ts
+│  │  ├── 📄 trials.service.spec.ts
+│  │  ├── 📄 trials.service.ts
+│  │  ├── 📄 updatedTrialBundles.repository.ts
+│  │  └── 📄 updatedTrials.repository.ts
 ├── 📂 global
 │  ├── 📂 common
 │  │  ├── 📄 CommonResponse.ts
@@ -138,15 +138,13 @@ $ npm start
 │  │  └── 📄 ErrorResponse.ts
 │  ├── 📂 exception
 │  │  └── 📄 ErrorHandler.ts
-│  ├── 📂 custom
-│  │  ├── 📄 clinical.module.ts
-│  │  ├── 📄 clinical.repository.ts
-│  │  └── 📄 clinical.schedule.ts
 │  ├── 📂 util
 │  │  ├── 📄 encryption.ts
 │  │  └── 📄 date.ts
-│  ├── 📄 app.module.ts
-│  └── 📄 main
+├── 📂 utils
+│  └── 📄 batchFunction.ts
+├── 📄 app.module.ts
+└── 📄 main
 📁 test
 ├── 📄 app.e2e-spec.ts
 └── 📄 jest-e2e.json
@@ -184,6 +182,7 @@ $ npm start
 ### 2) 상세 내용
 
 #### [설계 논의 사항](https://github.com/preOnboarding-Team13/Assignment-5-humanscape/wiki/설계-회의-내용)
+#### [오픈 API 조회 방식, For Loop Vs Promise.all](https://github.com/preOnboarding-Team13/Assignment-5-humanscape/wiki/오픈-API-조회-방식,-For-Loop-Vs-Promise.all)
 
 <br>
 
