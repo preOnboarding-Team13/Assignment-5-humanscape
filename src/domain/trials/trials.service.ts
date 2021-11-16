@@ -4,7 +4,11 @@ import * as _ from "lodash";
 import { TrialsRepository } from "./trials.repository";
 import { UpdatedTrialsRepository } from "./updatedTrials.repository";
 import { UpdatedTrialBundlesRepository } from "./updatedTrialBundles.repository";
-import { arrayToObject, callGetTrialsAPI, makeUniqueObject } from "src/utils/batchFunctions";
+import {
+	arrayToObject,
+	callGetTrialsAPI,
+	makeUniqueObject
+} from "src/utils/batchFunctions";
 
 @Injectable()
 export class TrialsService {
@@ -16,42 +20,50 @@ export class TrialsService {
 	private readonly logger = new Logger(TrialsService.name);
 
 	private readonly CLINICAL_URL = process.env.CLINICAL_URL;
-	private trialsConfig =
-	{
+	private trialsConfig = {
 		config: {
 			headers: { "Content-Type": "application/json" },
 			params: {
 				serviceKey: process.env.SERVICE_KEY,
 				resultType: "JSON",
-				numOfRows: 4,
+				numOfRows: 50,
 				pageNo: 1
-			},
+			}
 		},
 		key: "items"
-	}
+	};
 
-	@Cron(CronExpression.EVERY_10_MINUTES)
+	@Cron(CronExpression.EVERY_DAY_AT_5AM)
 	async handleCron() {
 		this.logger.log("started...");
 
-		const trials = await callGetTrialsAPI(this.CLINICAL_URL, this.trialsConfig.key, this.trialsConfig.config);
+		const trials = await callGetTrialsAPI(
+			this.CLINICAL_URL,
+			this.trialsConfig.key,
+			this.trialsConfig.config
+		);
 		this.logger.log(JSON.stringify(trials));
-		
+
 		const keyField = "trials_id";
 		const trialsObject = arrayToObject(trials, keyField);
-		
+
 		const latestData = await this.trialsRepository.findLatest();
-		if (latestData.length > 0 && _.isEqual(JSON.parse(latestData[0].data), trialsObject)) {
+		if (
+			latestData.length > 0 &&
+			_.isEqual(JSON.parse(latestData[0].data), trialsObject)
+		) {
 			return;
 		}
 
-		const created = await this.trialsRepository.createOne(JSON.stringify(trialsObject));
+		const created = await this.trialsRepository.createOne(
+			JSON.stringify(trialsObject)
+		);
 		this.logger.log(JSON.stringify(created));
-		
+
 		const updated = await this.makeUpdatedTrials(latestData, trialsObject);
 		this.logger.log(JSON.stringify(updated));
-		
-		updated && await this.makeUpdatedTrialBundle(7);
+
+		updated && (await this.makeUpdatedTrialBundle(7));
 	}
 
 	async makeUpdatedTrials(latestData, trialsObject) {
@@ -75,10 +87,12 @@ export class TrialsService {
 				}
 			}
 		}
-		
+
 		return !_.isEmpty(updated)
-			? await this.updatedTrialsRepository.createOne(JSON.stringify(updated))
-			: null
+			? await this.updatedTrialsRepository.createOne(
+					JSON.stringify(updated)
+			  )
+			: null;
 	}
 
 	async makeUpdatedTrialBundle(days: number) {
@@ -91,5 +105,4 @@ export class TrialsService {
 
 		this.logger.log(results);
 	}
-	
 }
