@@ -23,13 +23,23 @@ export async function callGetTrialsAPI(url: string, dataKey: string, config: Axi
 	const maxPage = Math.ceil(totalCount / pageSize);
 
 	// 2 page ~ maxPage
-	// for (let pageNo = 2; pageNo <= maxPage; pageNo++) {
-	// 	config.params.pageNo = pageNo;
-	// 	information = await lastValueFrom(
-	// 		this.httpService.get(url, config)
-	// 	);
-	// 	const items = information.data[dataKey];
-	// 	allData = [...allData, ...items];
-	// }
+	for (let pageNo = 2; pageNo <= maxPage; pageNo++) {
+		config.params.pageNo = pageNo;
+		information = await lastValueFrom(
+			this.httpService.get(url, config)
+		);
+		const items = information.data[dataKey];
+		allData = [...allData, ...items];
+	}
 	return allData;
+}
+
+export function makeUniqueObject(objects) {
+	return _.reduce(
+		objects, (prev, current) => {
+			const updated = JSON.parse(current.data);
+			prev = { ...prev, ...updated };
+			return prev;
+		}, {}
+	);
 }

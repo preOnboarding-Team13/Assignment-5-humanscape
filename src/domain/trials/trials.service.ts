@@ -1,18 +1,14 @@
-import { HttpService } from "@nestjs/axios";
 import { Injectable } from "@nestjs/common";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import * as _ from "lodash";
-import { lastValueFrom } from "rxjs";
-import { AxiosRequestConfig } from "axios";
 import { TrialsRepository } from "./trials.repository";
 import { UpdatedTrialsRepository } from "./updatedTrials.repository";
 import { UpdatedTrialBundlesRepository } from "./updatedTrialBundles.repository";
-import { arrayToObject, callGetTrialsAPI } from "src/utils/batchFunctions";
+import { arrayToObject, callGetTrialsAPI, makeUniqueObject } from "src/utils/batchFunctions";
 
 @Injectable()
 export class TrialsService {
 	constructor(
-		private readonly httpService: HttpService,
 		private readonly trialsRepository: TrialsRepository,
 		private readonly updatedTrialsRepository: UpdatedTrialsRepository,
 		private readonly updatedTrialBundlesRepository: UpdatedTrialBundlesRepository
@@ -33,8 +29,7 @@ export class TrialsService {
 		key: "items"
 	}
 
-	// @Cron(CronExpression.EVERY_30_MINUTES)
-	@Cron("*/20 * * * * *")
+	@Cron(CronExpression.EVERY_DAY_AT_5AM)
 	async handleCron() {
 		console.log("start");
 
@@ -48,9 +43,15 @@ export class TrialsService {
 			return;
 		}
 
-		await this.trialsRepository.createOne(JSON.stringify(trialsObject));
-		await this.makeUpdatedTrials(latestData, trialsObject);
-		await this.makeUpdatedTrialBundle(7);
+		const created = await this.trialsRepository.createOne(JSON.stringify(trialsObject));
+		// 결과 확인용
+		console.log(created);
+		
+		const updated = await this.makeUpdatedTrials(latestData, trialsObject);
+		// 결과 확인용
+		console.log(updated);
+		
+		updated && await this.makeUpdatedTrialBundle(7);
 	}
 
 	async makeUpdatedTrials(latestData, trialsObject) {
@@ -74,28 +75,22 @@ export class TrialsService {
 				}
 			}
 		}
-		const result = await this.updatedTrialsRepository.createOne(
-			JSON.stringify(updated)
-		);
-		return result;
+		
+		return !_.isEmpty(updated)
+			? await this.updatedTrialsRepository.createOne(JSON.stringify(updated))
+			: null
 	}
+
 	async makeUpdatedTrialBundle(days: number) {
 		// updatedBundles에 insert
 		const results = await this.updatedTrialsRepository.findDataFor(days);
-		const updatedBundle = _.reduce(
-			results,
-			(prev, cur) => {
-				const aaa = JSON.parse(cur.data);
-				prev = { ...prev, ...aaa };
-				return prev;
-			},
-			{}
-		);
+		const updatedBundle = makeUniqueObject(results);
 		await this.updatedTrialBundlesRepository.createOne(
 			JSON.stringify(updatedBundle)
 		);
+
+		// 결과 확인용
 		console.log(results);
 	}
-
 	
 }
