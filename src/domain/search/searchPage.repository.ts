@@ -24,23 +24,27 @@ export class SearchPageRepository extends Repository<UpdatedTrialBundles> {
 		const queryRunner = getConnection().createQueryRunner();
 
 		try {
-			queryRunner.startTransaction();
+			await queryRunner.startTransaction();
 
-			const count = (
-				await this.query(`select count(value) as count
-		from updatedTrialBundles, json_each(weekly)
-		where DATE(createdAt) = date('now')`)
+			// 총 데이터 수 쿼리
+			const count: number = (
+				await this.query(`
+                    SELECT count(value) as count
+                    FROM updatedTrialBundles, json_each(weekly)
+                    WHERE DATE(createdAt) = date('now')`)
 			)[0].count;
 
-			let query = `select value
-				from updatedTrialBundles, json_each(weekly)
-				where DATE(createdAt) = date('now')`;
+			// 페이징 데이터 쿼리
+			let query = `
+                SELECT value           
+                FROM updatedTrialBundles, json_each(weekly)
+				WHERE DATE(createdAt) = date('now')`;
 
 			if (cursor != undefined) {
 				if (cursor.includes("after")) {
 					query =
 						query +
-						`and json_extract(json_each.value, '$.trial_id') < '${afterDecode(
+						`AND json_extract(json_each.value, '$.trial_id') < '${afterDecode(
 							cursor
 						)}'`;
 				}
@@ -48,63 +52,75 @@ export class SearchPageRepository extends Repository<UpdatedTrialBundles> {
 
 			query =
 				query +
-				`order by json_extract(json_each.value, '$.trial_id') desc limit ${pageSize}`;
+				`ORDER BY json_extract(json_each.value, '$.trial_id') DESC 
+                LIMIT ${pageSize}`;
 
 			if (cursor != undefined) {
 				if (cursor.includes("before")) {
-					const subquery = `select value
-				from updatedTrialBundles, json_each(weekly)
-				where DATE(createdAt) = date('now')
-                and json_extract(json_each.value, '$.trial_id') > '${beforeDecode(
-					cursor
-				)}'
-                order by json_extract(json_each.value, '$.trial_id') asc limit ${pageSize}`;
+					const subquery = `
+                        SELECT value
+				        FROM updatedTrialBundles, json_each(weekly)
+				        WHERE DATE(createdAt) = date('now')
+                        AND json_extract(json_each.value, '$.trial_id') > '${beforeDecode(
+							cursor
+						)}'
+                        ORDER BY json_extract(json_each.value, '$.trial_id') ASC
+                        LIMIT ${pageSize}`;
 
-					query = `select sub.value 
-                from (${subquery}) as sub 
-                order by json_extract(sub.value, '$.trial_id') desc`;
+					query = `
+                        SELECT sub.value
+                        FROM (${subquery}) as sub 
+                        ORDER BY json_extract(sub.value, '$.trial_id') DESC`;
 				}
 			}
 
-			const result = await this.query(query);
-			const response = result.map((element) => JSON.parse(element.value));
+			const queryResult = await this.query(query);
+			const pageData = queryResult.map((element) =>
+				JSON.parse(element.value)
+			);
 
-			const afterDataYn = (
-				await this.query(`select EXISTS (
-		select value
-		from updatedTrialBundles, json_each(weekly)
-		where json_extract(json_each.value, '$.trial_id') <'${
-			response[response.length - 1].trial_id
-		}' and DATE(createdAt) = date('now')) as success`)
+			// 해당 데이터 이후의 값이 존재하는가?
+			const afterExists: number = (
+				await this.query(`
+                    SELECT EXISTS (
+                        SELECT value
+                        FROM updatedTrialBundles, json_each(weekly)
+                        WHERE json_extract(json_each.value, '$.trial_id') <'${
+							pageData[pageData.length - 1].trial_id
+						}' 
+                        AND DATE(createdAt) = date('now')) AS success`)
 			)[0].success;
 
-			const beforeDataYn = (
-				await this.query(`select EXISTS (
-		select value
-		from updatedTrialBundles, json_each(weekly)
-		where json_extract(json_each.value, '$.trial_id') >'${response[0].trial_id}'
-		and DATE(createdAt) = date('now')) as success`)
+			// 해당 데이터 이전의 값이 존재하는가?
+			const beforeExists: number = (
+				await this.query(`
+                    SELECT EXISTS (
+                        SELECT value
+                        FROM updatedTrialBundles, json_each(weekly)
+                        WHERE json_extract(json_each.value, '$.trial_id') >'${pageData[0].trial_id}'
+                        AND DATE(createdAt) = date('now')) AS success`)
 			)[0].success;
 
-			const cur = {
-				afterCursor: null,
-				beforeCursor: null
+			// 커서 해독
+			const curorReturn = {
+				afterCursor:
+					afterExists === 1
+						? afterEncode(pageData[pageData.length - 1].trial_id)
+						: null,
+				beforeCursor:
+					beforeExists === 1
+						? beforeEncode(pageData[0].trial_id)
+						: null
 			};
 
-			if (afterDataYn === 1) {
-				cur.afterCursor = afterEncode(
-					response[response.length - 1].trial_id
-				);
-			}
-			if (beforeDataYn === 1) {
-				cur.beforeCursor = beforeEncode(response[0].trial_id);
-			}
+			await queryRunner.commitTransaction();
 
 			const pageingResult = {
 				count: count,
-				data: response,
-				cursor: cur
+				data: pageData,
+				cursor: curorReturn
 			};
+
 			return pageingResult;
 		} catch (err) {
 			queryRunner.rollbackTransaction();
