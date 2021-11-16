@@ -5,8 +5,8 @@ import {
 	PrimaryGeneratedColumn
 } from "typeorm";
 
-@Entity("updateBundles")
-export class UpdateBundles {
+@Entity("updatedTrialBundles")
+export class UpdatedTrialBundles {
 	@PrimaryGeneratedColumn("increment")
 	bundle_Id!: number;
 
