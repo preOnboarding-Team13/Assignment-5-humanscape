@@ -1,27 +1,38 @@
-import { today } from "src/global/util/date";
 import {
 	afterDecode,
 	afterEncode,
 	beforeDecode,
 	beforeEncode
-} from "src/global/util/encryption";
+} from "../../global/util/encryption";
 import { EntityRepository, getConnection, Repository } from "typeorm";
 import { UpdatedTrialBundles } from "../entities/updatedTrialBundles.entity";
 
-// interface PagingResult<Entity> {
-// 	count: number;
-// 	data: Entity[];
-// 	cursor: Cursor;
-// }
-// interface Cursor {
-// 	beforeCursor: string | null;
-// 	afterCursor: string | null;
-// }
+export interface pagingResult {
+	count: number;
+	data: JSON;
+	cursor: Cursor;
+}
+
+export interface Cursor {
+	beforeCursor: string | null;
+	afterCursor: string | null;
+}
 
 @EntityRepository(UpdatedTrialBundles)
 export class SearchPageRepository extends Repository<UpdatedTrialBundles> {
 	async trialsList(cursor: string, pageSize: number) {
 		const queryRunner = getConnection().createQueryRunner();
+
+		const curorReturn: Cursor = {
+			afterCursor: null,
+			beforeCursor: null
+		};
+
+		const pagingResult = {
+			count: 0,
+			data: [],
+			cursor: curorReturn
+		};
 
 		try {
 			await queryRunner.startTransaction();
@@ -102,30 +113,25 @@ export class SearchPageRepository extends Repository<UpdatedTrialBundles> {
 			)[0].success;
 
 			// 커서 해독
-			const curorReturn = {
-				afterCursor:
-					afterExists === 1
-						? afterEncode(pageData[pageData.length - 1].trial_id)
-						: null,
-				beforeCursor:
-					beforeExists === 1
-						? beforeEncode(pageData[0].trial_id)
-						: null
-			};
+			curorReturn.afterCursor =
+				afterExists === 1
+					? afterEncode(pageData[pageData.length - 1].trial_id)
+					: null;
+			curorReturn.beforeCursor =
+				beforeExists === 1 ? beforeEncode(pageData[0].trial_id) : null;
+
+			pagingResult.count = count;
+			pagingResult.data = pageData;
+			pagingResult.cursor = curorReturn;
 
 			await queryRunner.commitTransaction();
-
-			const pageingResult = {
-				count: count,
-				data: pageData,
-				cursor: curorReturn
-			};
-
-			return pageingResult;
+			return pagingResult;
 		} catch (err) {
 			queryRunner.rollbackTransaction();
+			return pagingResult;
 		} finally {
 			queryRunner.release();
+			return pagingResult;
 		}
 	}
 }
