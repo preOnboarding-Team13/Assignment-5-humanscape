@@ -192,7 +192,7 @@ $ npm start
 ![image](https://user-images.githubusercontent.com/43634786/142021494-9a783af8-d5d0-4462-b63b-4e415c502f32.png)
 
 #### [설계 논의 사항](https://github.com/preOnboarding-Team13/Assignment-5-humanscape/wiki/설계-회의-내용)
-#### [오픈 API 조회 방식, For Loop Vs Promise.all](https://github.com/preOnboarding-Team13/Assignment-5-humanscape/wiki/오픈-API-조회-방식,-For-Loop-Vs-Promise.all)
+#### [오픈 API 조회 방식, For Loop VS Promise.all](https://github.com/preOnboarding-Team13/Assignment-5-humanscape/wiki/오픈-API-조회-방식,-For-Loop-Vs-Promise.all)
 #### [Functional Test 결과](https://github.com/preOnboarding-Team13/Assignment-5-humanscape/wiki/Functional-Test-결과)
 
 <br>
@@ -207,9 +207,13 @@ $ npm start
 
 #### 1. 위의 Postman 주소 링크를 클릭하여 Postman으로 들어갑니다.
 
-#### 2. Search Information, Search Updated Information API 를 이용하여 임상 정보 확인과 리스트 확인을 할 수 있습니다.
+#### 2. Search Information API 를 이용하여 trial_id에 대한 임상 정보를 확인 할 수 있습니다. 데이터가 없으면 404에러를 반환합니다.
 
-![image](https://user-images.githubusercontent.com/60311404/142031590-fd8bc1bc-d36e-43d2-9591-2de4dc694469.png)
+![image](https://user-images.githubusercontent.com/41619081/142034527-fca7a5ee-2c71-4b34-9786-9e992701d6bc.png)
+
+#### 3. Search Updated Information API 를 이용하여 변경된 임상 리스트 확인을 할 수 있습니다. 변경된 데이터가 없으면 404에러를 반환합니다.
+
+![image](https://user-images.githubusercontent.com/41619081/142034850-721c2427-902c-48b3-ab1f-c4eccf0d6f08.png)
 
 
 <br>
