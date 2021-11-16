@@ -1,6 +1,6 @@
 import { HttpService } from "@nestjs/axios";
 import { AxiosRequestConfig } from "axios";
-import _ from "lodash";
+import * as _ from "lodash";
 import { lastValueFrom } from "rxjs";
 
 export async function arrayToObject(arrayItems, keyField: string) {

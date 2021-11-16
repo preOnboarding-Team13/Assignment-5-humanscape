@@ -35,7 +35,8 @@ export class TrialsService {
 		this.logger.log("started...");
 
 		const trials = await callGetTrialsAPI(this.CLINICAL_URL, this.trialsConfig.key, this.trialsConfig.config);
-	
+		this.logger.log(JSON.stringify(trials));
+		
 		const keyField = "trials_id";
 		const trialsObject = arrayToObject(trials, keyField);
 		
@@ -45,10 +46,10 @@ export class TrialsService {
 		}
 
 		const created = await this.trialsRepository.createOne(JSON.stringify(trialsObject));
-		this.logger.log(created);
+		this.logger.log(JSON.stringify(created));
 		
 		const updated = await this.makeUpdatedTrials(latestData, trialsObject);
-		this.logger.log(updated);
+		this.logger.log(JSON.stringify(updated));
 		
 		updated && await this.makeUpdatedTrialBundle(7);
 	}
