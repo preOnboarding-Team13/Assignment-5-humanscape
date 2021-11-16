@@ -1,8 +1,8 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { Trials } from "../entities/trials.entity";
-import { UpdatedTrialBundles } from "../entities/updateBundles.entity";
-import { UpdateTrials } from "../entities/updatedTrials.entity";
+import { UpdatedTrialBundles } from "../entities/updatedTrialBundles.entity";
+import { UpdatedTrials } from "../entities/updatedTrials.entity";
 import { SearchController } from "./search.controller";
 import { SearchRepository } from "./search.repository";
 import { SearchService } from "./search.service";
@@ -12,7 +12,7 @@ import { SearchPageRepository } from "./searchPage.repository";
 	imports: [
 		TypeOrmModule.forFeature([
 			Trials,
-			UpdateTrials,
+			UpdatedTrials,
 			UpdatedTrialBundles,
 			SearchRepository,
 			SearchPageRepository

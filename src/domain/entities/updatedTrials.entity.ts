@@ -5,8 +5,8 @@ import {
 	PrimaryGeneratedColumn
 } from "typeorm";
 
-@Entity("updateTrials")
-export class UpdateTrials {
+@Entity("updatedTrials")
+export class UpdatedTrials {
 	@PrimaryGeneratedColumn("increment")
 	updatedData_Id!: number;
 

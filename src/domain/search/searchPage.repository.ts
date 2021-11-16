@@ -6,7 +6,7 @@ import {
 	beforeEncode
 } from "src/global/util/encryption";
 import { EntityRepository, getConnection, Repository } from "typeorm";
-import { UpdatedTrialBundles } from "../entities/updateBundles.entity";
+import { UpdatedTrialBundles } from "../entities/updatedTrialBundles.entity";
 
 // interface PagingResult<Entity> {
 // 	count: number;
