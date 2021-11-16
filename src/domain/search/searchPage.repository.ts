@@ -4,7 +4,7 @@ import {
 	afterEncode,
 	beforeDecode,
 	beforeEncode
-} from "src/global/util/encryption";
+} from "../../global/util/encryption";
 import { EntityRepository, getConnection, Repository } from "typeorm";
 import { UpdatedTrialBundles } from "../entities/updatedTrialBundles.entity";
 
