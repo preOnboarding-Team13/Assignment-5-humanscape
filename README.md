@@ -225,4 +225,4 @@ $ npm start
 
 | 김바다 | 김효민 | 원동균 | 이나영 | 장희진 | 조재복 |
 | ------ | ------ | ------ | ------ | ------ | ------ |
-|        |        |[티스토리 블로그](https://tristy.tistory.com/48)        |        |        |        |
+|        |[티스토리 블로그](https://baejjang.tistory.com/9)        |[티스토리 블로그](https://tristy.tistory.com/48)        |        |        |        |
