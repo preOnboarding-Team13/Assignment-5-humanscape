@@ -67,42 +67,39 @@ export class TrialsService {
 	}
 
 	async makeUpdatedTrials(latestData, trialsObject) {
-		let updated = {};
 		if (latestData.length === 0) {
-			updated = trialsObject;
-		} else {
-			const before = JSON.parse(latestData[0].data);
-			const now = trialsObject;
-
-			for (const key in now) {
-				// 새로 추가
-				if (before[key] === undefined) {
-					updated[key] = now[key];
-					continue;
-				}
-				// updated확인
-				if (!_.isEqual(before[key], now[key])) {
-					updated[key] = now[key];
-					continue;
-				}
-			}
+			return await this.updatedTrialsRepository.createOne(JSON.stringify(trialsObject));
 		}
 
+		let updated = {};
+		const before = JSON.parse(latestData[0].data);
+		const now = trialsObject;
+		for (const key in now) {
+			// 새로 추가
+			if (before[key] === undefined) {
+				updated[key] = now[key];
+				continue;
+			}
+			// updated확인
+			if (!_.isEqual(before[key], now[key])) {
+				updated[key] = now[key];
+				continue;
+			}
+		}
+		
 		return !_.isEmpty(updated)
-			? await this.updatedTrialsRepository.createOne(
-					JSON.stringify(updated)
-			  )
-			: null;
+			? await this.updatedTrialsRepository.createOne(JSON.stringify(updated))
+			: null
 	}
 
 	async makeUpdatedTrialBundle(days: number) {
 		// updatedBundles에 insert
-		const results = await this.updatedTrialsRepository.findDataFor(days);
-		const updatedBundle = makeUniqueObject(results);
+		const updateHistory = await this.updatedTrialsRepository.findDataFor(days);
+		const updatedBundle = makeUniqueObject(updateHistory);
 		await this.updatedTrialBundlesRepository.createOne(
 			JSON.stringify(updatedBundle)
 		);
 
-		this.logger.log(results);
+		this.logger.log(updateHistory);
 	}
 }
